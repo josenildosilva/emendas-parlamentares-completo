@@ -1,0 +1,33 @@
+[project]
+name = "emendas-parlamentares"
+version = "1.0.0"
+description = "Pipeline de dados ponta a ponta para análise de emendas parlamentares brasileiras"
+requires-python = ">=3.11"
+
+dependencies = [
+    "requests>=2.31.0",
+    "pandas>=2.2.0",
+    "duckdb>=0.10.0",
+    "pandera>=0.18.0",
+    "plotly>=5.20.0",
+    "streamlit>=1.32.0",
+    "python-dotenv>=1.0.0",
+    "pyarrow>=15.0.0",
+    "loguru>=0.7.0",
+    # Dependências para Quarto (renderização de relatórios .qmd)
+    "jupyter>=1.0.0",
+    "nbformat>=5.9.0",
+    "nbclient>=0.9.0",
+    "ipykernel>=6.29.0",
+    "pyyaml>=6.0.0",
+]
+
+[tool.uv]
+preview = true
+package = false
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.3.0",
+]

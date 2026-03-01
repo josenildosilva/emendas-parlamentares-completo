@@ -1,0 +1,42 @@
+name: Pipeline de Dados
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    # Executa todo dia 1º de cada mês (atualização mensal dos dados)
+    - cron: '0 6 1 * *'
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Instalar uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Instalar dependências
+        run: uv sync
+
+      - name: Ingestão
+        env:
+          API_KEY: ${{ secrets.API_KEY }}
+        run: uv run pipeline.py ingest
+
+      - name: Saneamento
+        run: uv run pipeline.py trusted
+
+      - name: Star Schema
+        run: uv run pipeline.py mart
+
+      - name: Feature Store
+        run: uv run pipeline.py feat
+
+      - name: Validar artefatos gerados
+        run: |
+          test -f data/trusted/emendas_trusted.parquet && echo "✅ Trusted OK"
+          test -f data/mart/fato_emendas.parquet       && echo "✅ Mart OK"
+          test -f data/feat/features.parquet           && echo "✅ Features OK"

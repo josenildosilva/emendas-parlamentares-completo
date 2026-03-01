@@ -1,0 +1,292 @@
+{
+  "dim_tempo": [
+    {
+      "column_name": "ano_id",
+      "column_type": "BIGINT",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "ano",
+      "column_type": "BIGINT",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "periodo",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    }
+  ],
+  "dim_funcao": [
+    {
+      "column_name": "funcao_id",
+      "column_type": "BIGINT",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "funcao",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "subfuncao",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "area_tematica",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    }
+  ],
+  "dim_localidade": [
+    {
+      "column_name": "localidade_id",
+      "column_type": "BIGINT",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "localidade",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "uf",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "regiao",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    }
+  ],
+  "dim_autor": [
+    {
+      "column_name": "autor_id",
+      "column_type": "BIGINT",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "autor",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "tipoEmenda",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "tipo_simplificado",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    }
+  ],
+  "fato_emendas": [
+    {
+      "column_name": "codigoEmenda",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "ano",
+      "column_type": "BIGINT",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "autor",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "funcao",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "subfuncao",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "localidadeDoGasto",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "uf",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "tipoEmenda",
+      "column_type": "VARCHAR",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "valorEmpenhado",
+      "column_type": "DOUBLE",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "valorLiquidado",
+      "column_type": "DOUBLE",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "valorPago",
+      "column_type": "DOUBLE",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "valorRestoInscrito",
+      "column_type": "DOUBLE",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "valorRestoCancelado",
+      "column_type": "DOUBLE",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "valorRestoPago",
+      "column_type": "DOUBLE",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "taxa_execucao_pct",
+      "column_type": "DOUBLE",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "restos_liquidos",
+      "column_type": "DOUBLE",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "emenda_vitrine",
+      "column_type": "BOOLEAN",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "ano_id",
+      "column_type": "BIGINT",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "localidade_id",
+      "column_type": "BIGINT",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    },
+    {
+      "column_name": "autor_id",
+      "column_type": "BIGINT",
+      "null": "YES",
+      "key": null,
+      "default": null,
+      "extra": null
+    }
+  ]
+}
