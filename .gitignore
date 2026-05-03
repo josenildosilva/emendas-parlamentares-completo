@@ -8,21 +8,9 @@ __pycache__/
 *.pyo
 
 # Dados (camadas raw e trusted podem ser grandes)
-data/raw/*.json
-data/trusted/
-data/feat/
+data/
 *.parquet
 *.duckdb
-
-# Manter estrutura de diretórios
-!data/raw/.gitkeep
-!data/trusted/.gitkeep
-!data/mart/.gitkeep
-!data/feat/.gitkeep
-
-# Outputs de relatórios
-reports/_site/
-reports/*.html
 
 # IDEs
 .vscode/
@@ -32,3 +20,8 @@ reports/*.html
 # Logs
 logs/
 *.log
+
+# Quarto
+_quarto/
+.quarto/
+*_files/
