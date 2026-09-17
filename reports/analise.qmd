@@ -171,6 +171,28 @@ investigação sobre os motivos do atraso na execução.
 ## 2. Distribuição Geográfica
 
 ```{python}
+#| label: cobertura-geografica
+#| include: false
+
+# Emendas nacionais e de comissão não têm UF atribuível e ficam fora do
+# ranking. Em vez de omitir isso, medimos a fatia que esta seção cobre.
+_sem_uf   = df[df["uf"] == "NA"]
+cob_qtd   = len(df) - len(_sem_uf)
+cob_pct   = (1 - _sem_uf["valorEmpenhado"].sum() / df["valorEmpenhado"].sum()) * 100
+sem_uf_n  = len(_sem_uf)
+sem_uf_rs = _sem_uf["valorEmpenhado"].sum()
+```
+
+::: {.callout-note}
+## Cobertura desta seção
+Esta análise cobre as **`{python} fmt_num(cob_qtd)`** emendas com UF identificável, que
+correspondem a **`{python} fmt_pct(cob_pct)`** do valor empenhado — as outras
+`{python} fmt_num(sem_uf_n)`, de âmbito nacional ou de comissão, somam
+`{python} fmt_moeda(sem_uf_rs)` e não se referem a uma única unidade da federação.
+Os números a seguir descrevem, portanto, a distribuição dessa fatia, e não do orçamento total.
+:::
+
+```{python}
 #| label: fig-uf
 #| fig-cap: "Valor empenhado por Unidade da Federação"
 
