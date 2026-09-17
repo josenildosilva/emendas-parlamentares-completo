@@ -349,7 +349,7 @@ def main():
         col1, col2 = st.columns([2, 1])
 
         with col1:
-            st.plotly_chart(grafico_barras_funcao(df), use_container_width=True)
+            st.plotly_chart(grafico_barras_funcao(df), width="stretch")
 
         with col2:
             st.subheader("Top Parlamentares")
@@ -359,7 +359,7 @@ def main():
                      .reset_index())
             top.columns = ["Parlamentar", "Empenhado (R$)"]
             top["Empenhado (R$)"] = top["Empenhado (R$)"].map("R$ {:,.2f}".format)
-            st.dataframe(top, use_container_width=True, hide_index=True)
+            st.dataframe(top, width="stretch", hide_index=True)
 
     with aba2:
         st.markdown(
@@ -382,7 +382,7 @@ def main():
                 title="Top 15 UFs por Valor Empenhado",
                 labels={"uf": "UF", "total": "Total Empenhado (R$)"},
             )
-            st.plotly_chart(fig_uf, use_container_width=True)
+            st.plotly_chart(fig_uf, width="stretch")
 
         with col2:
             fig_qtd = px.pie(
@@ -390,11 +390,11 @@ def main():
                 names="uf", values="qtd",
                 title="Distribuição de Emendas por UF (quantidade)",
             )
-            st.plotly_chart(fig_qtd, use_container_width=True)
+            st.plotly_chart(fig_qtd, width="stretch")
 
         st.dataframe(
             agg_uf.rename(columns={"uf": "UF", "total": "Total Empenhado (R$)", "qtd": "Nº Emendas"}),
-            use_container_width=True,
+            width="stretch",
             hide_index=True,
         )
 
@@ -407,7 +407,7 @@ def main():
         col1, col2 = st.columns([2, 1])
 
         with col1:
-            st.plotly_chart(grafico_execucao(df), use_container_width=True)
+            st.plotly_chart(grafico_execucao(df), width="stretch")
 
         with col2:
             vitrines = tabela_vitrines(df)
@@ -431,7 +431,7 @@ def main():
 
         if not vitrines.empty:
             st.subheader("⚠️ Emendas com Baixíssima Execução (<10%)")
-            st.dataframe(vitrines, use_container_width=True, hide_index=True)
+            st.dataframe(vitrines, width="stretch", hide_index=True)
         else:
             st.success("✅ Nenhuma emenda vitrine identificada nos dados filtrados.")
 
