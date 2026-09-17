@@ -100,12 +100,7 @@ def carregar_dados() -> pd.DataFrame:
 
     else:
         st.error("⚠️ Nenhum dado encontrado. Execute o pipeline primeiro.")
-        st.code(
-            "uv run python src/ingest.py\n"
-            "uv run python src/transform.py\n"
-            "uv run python src/mart.py\n"
-            "uv run python src/feat.py"
-        )
+        st.code("uv run pipeline.py")
         st.stop()
 
 

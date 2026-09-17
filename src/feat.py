@@ -42,7 +42,7 @@ def carregar_mart(con: duckdb.DuckDBPyConnection) -> None:
     for tabela in tabelas:
         path = MART_DIR / f"{tabela}.parquet"
         if not path.exists():
-            logger.error(f"'{path}' não encontrado. Execute: uv run python src/mart.py")
+            logger.error(f"'{path}' não encontrado. Execute: uv run pipeline.py mart")
             raise SystemExit(1)
         con.execute(f"CREATE VIEW {tabela} AS SELECT * FROM read_parquet('{path}')")
         logger.debug(f"  view registrada: {tabela}")

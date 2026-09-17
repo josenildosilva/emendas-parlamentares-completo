@@ -421,4 +421,4 @@ def transformar() -> Path:
 
 if __name__ == "__main__":
     caminho = transformar()
-    logger.info("Próximo passo → uv run python src/mart.py")
+    logger.info("Próximo passo → uv run pipeline.py mart")

@@ -329,7 +329,7 @@ def main() -> None:
 
     trusted_path = TRUSTED_DIR / "emendas_trusted.parquet"
     if not trusted_path.exists():
-        logger.error("Trusted não encontrado. Execute: uv run python src/trusted.py")
+        logger.error("Trusted não encontrado. Execute: uv run pipeline.py trusted")
         raise SystemExit(1)
 
     n = len(pd.read_parquet(trusted_path))
@@ -357,7 +357,7 @@ def main() -> None:
     exportar(con)
 
     con.close()
-    logger.success("🎉 Star Schema concluído! Próximo passo → uv run python src/feat.py")
+    logger.success("🎉 Star Schema concluído! Próximo passo → uv run pipeline.py feat")
 
 
 if __name__ == "__main__":
