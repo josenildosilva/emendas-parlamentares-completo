@@ -1,5 +1,8 @@
 # Segredos - NUNCA versionar
-.env
+# Pega .env, .env.local, .env.production etc. A excecao abaixo mantem
+# apenas o template, que nao contem credencial.
+.env*
+!.env.example
 
 # Ambiente virtual
 .venv/
