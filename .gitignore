@@ -7,10 +7,28 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Dados (camadas raw e trusted podem ser grandes)
-data/
+# Dados gerados pelo pipeline (podem ser grandes)
+data/raw/*
+data/trusted/*
+data/mart/*
+data/feat/*
+data/staging/*
+data/quarentena/*
 *.parquet
 *.duckdb
+
+# Checkpoint de ingestao: e ESTADO LOCAL, nunca versionar.
+# Versionar o checkpoint faz a ingestao abortar no clone de outra pessoa,
+# apontando para um arquivo raw que nao existe naquela maquina.
+.checkpoint_*.json
+
+# Excecoes: estrutura de diretorios + amostra usada pelo modo demo
+!data/raw/.gitkeep
+!data/raw/emendas_2023_sample.json
+!data/trusted/.gitkeep
+!data/mart/.gitkeep
+!data/mart/dicionario_dados.json
+!data/feat/.gitkeep
 
 # IDEs
 .vscode/

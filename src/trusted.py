@@ -14,7 +14,9 @@ Uso:
     uv run python src/trusted.py
 """
 
+import json
 import os
+import re
 from pathlib import Path
 
 import duckdb
@@ -28,6 +30,7 @@ from pandera.pandas import Column, DataFrameSchema, Check
 load_dotenv()
 
 RAW_DIR = Path(os.getenv("RAW_DIR", "data/raw"))
+META_DIR = RAW_DIR / ".meta"
 TRUSTED_DIR = Path(os.getenv("TRUSTED_DIR", "data/trusted"))
 
 # Qualidade mínima aceitável (Engenharia Defensiva)
@@ -69,23 +72,108 @@ SCHEMA_RAW = DataFrameSchema(
 # O DuckDB lê diretamente do arquivo e aplica filtros antes de criar o DataFrame.
 # Para datasets de milhões de linhas, isso é a diferença entre funcionar e travar.
 #
+# Nome dos arquivos gravados pelo ingest: emendas_<ano>_<AAAAMMDD>_<HHMMSS>.json
+_PADRAO_RAW = re.compile(r"^emendas_(\d{4})_(\d{8}_\d{6})\.json$")
+# Amostra versionada do modo demo: emendas_<ano>_sample.json
+_PADRAO_AMOSTRA = re.compile(r"^emendas_(\d{4})_sample\.json$")
+
+
+def selecionar_arquivos_raw(raw_dir: Path) -> list[Path]:
+    """
+    Escolhe UM arquivo raw por ano — o registrado no checkpoint da ingestão.
+
+    Conceito: a camada Raw é append-only. Cada execução do ingest grava um
+    arquivo NOVO com timestamp, sem apagar os anteriores — isso é proposital,
+    é o que torna o histórico auditável.
+
+    A consequência é que ler `emendas_*.json` de uma vez reprocessa as mesmas
+    emendas N vezes. O deduplicador descarta as cópias, o percentual de descarte
+    cresce a cada rodada e, na segunda execução, a trava de qualidade
+    (LIMITE_DESCARTE_PCT) derruba o pipeline por um problema que não existe
+    nos dados.
+
+    Raw imutável exige, portanto, um ponteiro para o "corrente" — aqui, o
+    checkpoint escrito pelo ingest. Em produção, o equivalente seria ler uma
+    partição (ex.: data/raw/ano=2023/ingestao=.../).
+    """
+    meta_dir = raw_dir / ".meta"
+    selecionados: dict[str, Path] = {}
+
+    # ── Caminho principal: o checkpoint diz qual arquivo é o corrente ──────────
+    for checkpoint_path in sorted(meta_dir.glob(".checkpoint_*.json")):
+        try:
+            registro = json.loads(checkpoint_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            logger.warning(f"Checkpoint ilegível, ignorado: {checkpoint_path.name}")
+            continue
+
+        arquivo = Path(registro.get("arquivo", ""))
+        ano = str(registro.get("ano", checkpoint_path.stem.replace(".checkpoint_", "")))
+
+        # O checkpoint guarda o caminho relativo à raiz do projeto. Se o script
+        # for chamado de outro diretório, tentamos reencontrar pelo nome.
+        if not arquivo.is_file() and arquivo.name:
+            alternativa = raw_dir / arquivo.name
+            if alternativa.is_file():
+                arquivo = alternativa
+
+        if arquivo.is_file():
+            selecionados[ano] = arquivo
+        else:
+            logger.warning(
+                f"Checkpoint {checkpoint_path.name} aponta para arquivo inexistente "
+                f"({arquivo}) — será ignorado."
+            )
+
+    # ── Fallback: sem checkpoint utilizável, pega o mais recente de cada ano ───
+    if not selecionados:
+        por_ano: dict[str, list[tuple[str, Path]]] = {}
+        for caminho in raw_dir.glob("emendas_*.json"):
+            m = _PADRAO_RAW.match(caminho.name)
+            if m:
+                por_ano.setdefault(m.group(1), []).append((m.group(2), caminho))
+
+        for ano, itens in por_ano.items():
+            selecionados[ano] = max(itens)[1]
+
+        # Nenhuma saída do ingest: aceita a amostra versionada (modo demo)
+        for caminho in raw_dir.glob("emendas_*_sample.json"):
+            m = _PADRAO_AMOSTRA.match(caminho.name)
+            if m and m.group(1) not in selecionados:
+                selecionados[m.group(1)] = caminho
+
+        if selecionados:
+            logger.warning(
+                "Nenhum checkpoint válido em .meta/ — usando o arquivo mais "
+                "recente de cada ano como fallback."
+            )
+
+    if not selecionados:
+        raise FileNotFoundError(
+            f"Nenhum arquivo raw encontrado em {raw_dir}. "
+            "Execute primeiro: uv run pipeline.py ingest"
+        )
+
+    arquivos = [selecionados[ano] for ano in sorted(selecionados)]
+    for ano, caminho in sorted(selecionados.items()):
+        logger.info(f"Raw selecionado para {ano}: {caminho.name}")
+    return arquivos
+
+
+# ── Step 1: Leitura com DuckDB (Push Down Computation) ───────────────────────
 def carregar_raw_com_duckdb(raw_dir: Path) -> pd.DataFrame:
     """
-    Lê todos os JSONs da camada Raw usando DuckDB.
+    Lê o raw corrente de cada ano usando DuckDB.
 
     Push Down Computation: o DuckDB processa o arquivo no disco.
     Só traz para a RAM os registros que passam no filtro inicial.
     """
-    arquivos_json = list(raw_dir.glob("emendas_*.json"))
-    if not arquivos_json:
-        raise FileNotFoundError(
-            f"Nenhum arquivo raw encontrado em {raw_dir}. "
-            "Execute primeiro: uv run python src/ingest.py"
-        )
-
-    logger.info(f"Arquivos raw encontrados: {len(arquivos_json)}")
+    arquivos_json = selecionar_arquivos_raw(raw_dir)
+    logger.info(f"Arquivos raw selecionados: {len(arquivos_json)}")
 
     # DuckDB lê JSON nativo — sem pd.read_json(), sem carregar na RAM
+    lista_arquivos = ", ".join(f"'{a.as_posix()}'" for a in arquivos_json)
+
     con = duckdb.connect()
     query = f"""
         SELECT
@@ -104,7 +192,7 @@ def carregar_raw_com_duckdb(raw_dir: Path) -> pd.DataFrame:
             valorRestoInscrito,
             valorRestoCancelado,
             valorRestoPago
-        FROM read_json_auto('{raw_dir}/emendas_*.json', union_by_name=True)
+        FROM read_json_auto([{lista_arquivos}], union_by_name=True)
         -- Filtro inicial no DuckDB: só anos válidos (evita corrupção de dados)
         WHERE ano BETWEEN 2020 AND 2025
     """

@@ -133,16 +133,20 @@ def _carregar_dados_demo(ano: int) -> list[dict]:
     logger.warning("⚠️  API_KEY não configurada — usando dados de demonstração locais.")
     logger.warning("   Configure .env com sua chave do Portal da Transparência para dados reais.")
 
-    candidatos = list(RAW_DIR.glob(f"emendas_{ano}*.json"))
-    if candidatos:
-        arquivo = candidatos[0]
+    # A amostra versionada tem nome fixo e previsível. Não usamos glob aqui:
+    # depois da primeira execução o Raw contém arquivos com timestamp, e um
+    # glob pegaria a saída da rodada anterior em vez da amostra de origem.
+    arquivo = RAW_DIR / f"emendas_{ano}_sample.json"
+    if arquivo.exists():
         dados = json.loads(arquivo.read_text(encoding="utf-8"))
         logger.info(f"Demo: carregando {len(dados)} registros de '{arquivo.name}'")
         return dados
 
-    logger.error(f"Nenhum arquivo de demo encontrado em {RAW_DIR} para o ano {ano}")
+    logger.error(f"Amostra de demo não encontrada para o ano {ano}: {arquivo}")
     raise FileNotFoundError(
-        f"Arquivo demo não encontrado. Coloque um JSON em {RAW_DIR}/emendas_{ano}.json"
+        f"Amostra não encontrada. Esperado: {arquivo}\n"
+        f"O repositório versiona emendas_2023_sample.json — para outros anos, "
+        f"configure a API_KEY no .env."
     )
 
 
@@ -259,6 +263,7 @@ def ingerir(ano: int, forcar: bool = False) -> Path:
     caminho, hash_arquivo = _salvar_raw(emendas, ano)
 
     _salvar_checkpoint(ano, {
+        "ano": ano,
         "arquivo": str(caminho),
         "hash": hash_arquivo,
         "registros": len(emendas),

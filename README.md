@@ -21,24 +21,35 @@ Este projeto responde três perguntas concretas:
 ## ⚡ Reprodutibilidade (Zero Config)
 
 ```bash
-# Clone → instale → execute: três comandos, zero configuração manual
-git clone https://github.com/seu-usuario/emendas-parlamentares.git
-cd emendas-parlamentares
+# Clone → instale → execute
+git clone https://github.com/josenildosilva/emendas-parlamentares-completo.git
+cd emendas-parlamentares-completo
 
 cp .env.example .env          # edite com sua API Key (opcional — modo demo funciona sem ela)
 uv sync                       # instala todas as dependências com versões exatas
-uv run ingest    # Sprint 1: coleta → data/raw/
-uv run trusted   # Sprint 2: saneamento → data/trusted/
-uv run mart      # Sprint 3a: Star Schema → data/mart/
-uv run feat      # Sprint 3b: Feature Store → data/feat/
-uv run app       # Sprint 4: dashboard interativo
 
-# Ou rodar o pipeline completo de uma vez:
-uv run pipeline
-uv run streamlit run app.py     # Sprint 4: dashboard interativo
+# Pipeline completo de uma vez:
+uv run pipeline.py
+
+# Ou passo a passo:
+uv run pipeline.py ingest    # Sprint 1: coleta → data/raw/
+uv run pipeline.py trusted   # Sprint 2: saneamento → data/trusted/
+uv run pipeline.py mart      # Sprint 3a: Star Schema → data/mart/
+uv run pipeline.py feat      # Sprint 3b: Feature Store → data/feat/
+
+uv run streamlit run app.py  # Sprint 4: dashboard interativo
 ```
 
-> **Modo demo:** sem API Key, o pipeline usa dados de amostra incluídos no repositório (`data/raw/emendas_2023.json`). Funciona sem nenhuma configuração adicional.
+> **Modo demo:** sem API Key, o pipeline usa a amostra versionada no repositório
+> (`data/raw/emendas_2023_sample.json`, 15 emendas reais de 2023). Funciona sem
+> nenhuma configuração adicional — útil para entender o fluxo antes de baixar
+> os ~6.100 registros do ano completo via API.
+
+> **Reexecutar é seguro.** O `ingest` grava um arquivo novo a cada rodada (Raw
+> append-only) e anota o corrente em `data/raw/.meta/.checkpoint_<ano>.json`.
+> O `trusted` lê **apenas** o arquivo do checkpoint, e não o diretório inteiro —
+> por isso o histórico pode crescer sem inflar o percentual de duplicatas.
+> Use `uv run pipeline.py ingest --force` para forçar nova coleta.
 
 ---
 
@@ -68,23 +79,28 @@ Portal da Transparência (API)
 ## 📁 Estrutura de Diretórios
 
 ```
-emendas-parlamentares/
+emendas-parlamentares-completo/
+├── pipeline.py             # Orquestrador: `uv run pipeline.py [passo]`
 ├── src/
-│   ├── ingest.py       # S1: Ingestão com idempotência e checkpoint
-│   ├── trusted.py    # S2: Qualidade com Pandera + DuckDB
-│   ├── mart.py   # S3a: Star Schema (dimensões + fato + views)
-│   └── feat.py   # S3b: Feature Store (features para ML)
-├── app.py              # S4: Dashboard Streamlit
+│   ├── ingest.py           # S1: Ingestão com idempotência e checkpoint
+│   ├── trusted.py          # S2: Qualidade com Pandera + DuckDB (híbrido)
+│   ├── trusted_duckdb.py   # S2: variante DuckDB-first (mesma etapa, SQL puro)
+│   ├── mart.py             # S3a: Star Schema (dimensões + fato + views)
+│   └── feat.py             # S3b: Feature Store (features para ML)
+├── app.py                  # S4: Dashboard Streamlit
 ├── reports/
-│   └── analise.qmd     # S4: Relatório executivo (Quarto)
+│   └── analise.qmd         # S4: Relatório executivo (Quarto)
 ├── data/
-│   ├── raw/            # Bronze - imutável (não versionado)
-│   ├── trusted/        # Silver - Parquet validado (não versionado)
-│   ├── mart/           # Gold - OLAP + dicionário (não versionado)
-│   └── feat/           # Gold - Feature Store (não versionado)
-├── .env.example        # Template de variáveis de ambiente
-├── .gitignore          # Protege segredos e dados grandes
-├── pyproject.toml      # Dependências gerenciadas pelo uv
+│   ├── raw/                # Bronze - imutável, append-only
+│   │   ├── emendas_2023_sample.json   # Único dado versionado (modo demo)
+│   │   └── .meta/          # Schemas inferidos + checkpoints (locais)
+│   ├── trusted/            # Silver - Parquet validado (não versionado)
+│   ├── mart/               # Gold - Star Schema + dicionário (não versionado)
+│   └── feat/               # Gold - Feature Store (não versionado)
+├── LICENSE                 # MIT — livre para usar, adaptar e redistribuir
+├── .env.example            # Template de variáveis de ambiente
+├── .gitignore              # Protege segredos, dados grandes e checkpoints
+├── pyproject.toml          # Dependências gerenciadas pelo uv
 └── README.md
 ```
 
@@ -174,6 +190,17 @@ Produtividade: um cientista de dados entrega um app funcional em horas. O app é
 - Kimball & Ross, *The Data Warehouse Toolkit*, Wiley 2013
 - DuckDB Documentation: https://duckdb.org/docs
 - Portal da Transparência API: https://portaldatransparencia.gov.br/api-de-dados
+
+---
+
+## 📄 Licença
+
+Distribuído sob a licença **MIT** — veja [LICENSE](LICENSE).
+
+Na prática: você pode clonar, modificar, usar como base para trabalhos da
+disciplina e republicar, desde que mantenha o aviso de copyright. Os **dados**
+são do Portal da Transparência e seguem a Lei de Acesso à Informação
+(Lei 12.527/2011) — a licença acima cobre o código, não os dados.
 
 ---
 

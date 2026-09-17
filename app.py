@@ -36,7 +36,7 @@ FEAT_DIR = Path("data/feat")
 
 # Fallback para demo sem banco pré-gerado
 TRUSTED_PATH = Path("data/trusted/emendas_trusted.parquet")
-RAW_PATH = Path("data/raw/emendas_2023.json")
+RAW_PATH = Path("data/raw/emendas_2023_sample.json")
 
 
 def _extrair_uf_app(localidade: str) -> str:

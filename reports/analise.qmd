@@ -53,7 +53,7 @@ def _extrair_uf(localidade: str) -> str:
 def carregar_dados():
     fato  = Path("../data/mart/fato_emendas.parquet")
     trusted = Path("../data/trusted/emendas_trusted.parquet")
-    raw   = Path("../data/raw/emendas_2023.json")
+    raw   = Path("../data/raw/emendas_2023_sample.json")
 
     if fato.exists():
         df = pd.read_parquet(fato)
