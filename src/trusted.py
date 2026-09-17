@@ -421,4 +421,4 @@ def transformar() -> Path:
 
 if __name__ == "__main__":
     caminho = transformar()
-    logger.info(f"Próximo passo → uv run python src/model.py")
+    logger.info("Próximo passo → uv run python src/model.py")

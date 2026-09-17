@@ -307,7 +307,7 @@ def gerar_dicionario(con: duckdb.DuckDBPyConnection) -> None:
                   for t in tabelas}
     caminho = MART_DIR / "dicionario_dados.json"
     caminho.write_text(json.dumps(dicionario, indent=2, ensure_ascii=False))
-    logger.success(f"  ✅ dicionario_dados.json")
+    logger.success("  ✅ dicionario_dados.json")
 
 
 # ── Exportação ────────────────────────────────────────────────────────────────

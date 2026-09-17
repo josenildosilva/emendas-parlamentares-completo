@@ -15,7 +15,6 @@ Uso:
     uv run streamlit run app.py --server.port 8501 --server.address 0.0.0.0
 """
 
-import duckdb
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
