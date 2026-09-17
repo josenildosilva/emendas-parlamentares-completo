@@ -110,11 +110,15 @@ emendas-parlamentares-completo/
 
 | Variável | Obrigatória | Descrição |
 |---|---|---|
-| `API_KEY` | Não | Chave do Portal da Transparência. Sem ela, usa dados de amostra. |
-| `ANO_INICIO` | Não | Ano inicial da coleta (padrão: 2023) |
-| `ANO_FIM` | Não | Ano final da coleta (padrão: 2023) |
+| `API_KEY` | Não | Chave do Portal da Transparência. Sem ela, usa a amostra versionada. |
+| `ANOS` | Não | Anos a coletar, separados por vírgula (padrão: `2023`). Ex.: `2022,2023` |
 | `RAW_DIR` | Não | Diretório da camada Raw (padrão: `data/raw`) |
 | `TRUSTED_DIR` | Não | Diretório da camada Trusted (padrão: `data/trusted`) |
+| `MART_DIR` | Não | Diretório da camada Mart (padrão: `data/mart`) |
+| `FEAT_DIR` | Não | Diretório da Feature Store (padrão: `data/feat`) |
+
+O `ANOS` do `.env` pode ser sobrescrito na linha de comando:
+`uv run pipeline.py ingest --anos 2022 2023`
 
 Obtenha uma API Key gratuita em: https://portaldatransparencia.gov.br/api-de-dados/cadastrar-email
 

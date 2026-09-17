@@ -43,3 +43,5 @@ logs/
 _quarto/
 .quarto/
 *_files/
+# Relatorio renderizado: embed-resources gera ~16 MB, nao versionar
+reports/*.html
