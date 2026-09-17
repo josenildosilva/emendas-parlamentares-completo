@@ -3,9 +3,10 @@ name: Pipeline de Dados
 on:
   push:
     branches: [main]
-  schedule:
-    # Executa todo dia 1º de cada mês (atualização mensal dos dados)
-    - cron: '0 6 1 * *'
+  # Execução manual, pelo botão "Run workflow" na aba Actions.
+  # Sem API_KEY configurada como secret, o pipeline roda em modo demo
+  # com a amostra versionada em data/raw/.
+  workflow_dispatch:
 
 jobs:
   pipeline:
