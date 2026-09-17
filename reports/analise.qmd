@@ -3,6 +3,9 @@ title: "Emendas Parlamentares: Transparência Orçamentária"
 subtitle: "Análise Reprodutível · Introdução à Ciência de Dados · PPGCA 2026.1"
 author: "Prof. Dr. Josenildo Silva"
 date: today
+# Sem isto o Quarto rotula tudo em ingles ("Table of contents") e a data
+# sai como "September 17, 2026" num relatorio escrito em portugues.
+lang: pt
 # Garante que Quarto use o Python do .venv gerenciado pelo uv
 jupyter: python3
 format:
@@ -90,21 +93,39 @@ def carregar_dados():
     return df
 
 df = carregar_dados()
+
+
+# ── Formatacao numerica brasileira ────────────────────────────────────────────
+# Python formata 1234567.0 como "1,234,567" (padrao en-US). No Brasil o
+# separador de milhar e o ponto e o decimal e a virgula.
+def fmt_num(valor) -> str:
+    """1234567 -> '1.234.567'"""
+    return f"{valor:,.0f}".replace(",", ".")
+
+
+def fmt_moeda(valor) -> str:
+    """1234567 -> 'R$ 1.234.567'"""
+    return f"R$ {fmt_num(valor)}"
+
+
+def fmt_pct(valor, casas: int = 1) -> str:
+    """62.37 -> '62,4%'"""
+    return f"{valor:.{casas}f}".replace(".", ",") + "%"
 ```
 
 ## Sumário Executivo
 
-Este relatório analisa **`{python} len(df)`** emendas parlamentares ao Orçamento da União, 
-totalizando **R$ `{python} f"{df['valorEmpenhado'].sum():,.0f}"`** em recursos empenhados 
-e **R$ `{python} f"{df['valorPago'].sum():,.0f}"`** efetivamente pagos.
+Este relatório analisa **`{python} fmt_num(len(df))`** emendas parlamentares ao Orçamento da União, 
+totalizando **`{python} fmt_moeda(df['valorEmpenhado'].sum())`** em recursos empenhados 
+e **`{python} fmt_moeda(df['valorPago'].sum())`** efetivamente pagos.
 
-A taxa média de execução orçamentária é de **`{python} f"{(df['valorPago'].sum()/df['valorEmpenhado'].sum()*100):.1f}"`%** — 
+A taxa média de execução orçamentária é de **`{python} fmt_pct(df['valorPago'].sum()/df['valorEmpenhado'].sum()*100)`** — 
 indicando que parte significativa dos recursos empenhados ainda não chegou ao destino.
 
 ::: {.callout-important}
 ## Achado Principal
-`{python} df['emenda_vitrine'].sum()` emendas apresentam taxa de execução inferior a 10%, 
-comprometendo **R$ `{python} f"{df[df['emenda_vitrine']]['valorEmpenhado'].sum():,.0f}"`** 
+**`{python} fmt_num(int(df['emenda_vitrine'].sum()))`** emendas apresentam taxa de execução inferior a 10%, 
+comprometendo **`{python} fmt_moeda(df[df['emenda_vitrine']]['valorEmpenhado'].sum())`** 
 em recursos que podem estar presos em restos a pagar.
 :::
 
@@ -177,7 +198,7 @@ fig.show()
 #| tbl-cap: "Ranking de UFs por volume de emendas"
 
 tbl = agg_uf.copy()
-tbl["total"] = tbl["total"].map("R$ {:,.0f}".format)
+tbl["total"] = tbl["total"].map(fmt_moeda)
 tbl.columns = ["UF", "Total Empenhado", "Nº Emendas"]
 tbl.reset_index(drop=True, inplace=True)
 tbl.index += 1
@@ -210,7 +231,11 @@ fig.show()
 
 ```{python}
 #| label: tbl-vitrines
-#| tbl-cap: "Emendas com baixíssima execução (<10%) — possíveis 'emendas vitrine'"
+#| tbl-cap: "As 20 maiores emendas com baixíssima execução (<10%) — possíveis 'emendas vitrine'"
+
+# Despejar as ~1.500 linhas inteiras torna a tabela ilegível e infla o HTML.
+# O total aparece no Sumário Executivo; aqui mostramos as maiores em valor.
+TOP_N = 20
 
 vitrines = (df[df["emenda_vitrine"]][
     ["codigoEmenda", "autor", "funcao", "localidadeDoGasto",
@@ -218,12 +243,14 @@ vitrines = (df[df["emenda_vitrine"]][
 ].sort_values("valorEmpenhado", ascending=False))
 
 if len(vitrines) > 0:
-    vitrines["valorEmpenhado"] = vitrines["valorEmpenhado"].map("R$ {:,.0f}".format)
-    vitrines["valorPago"] = vitrines["valorPago"].map("R$ {:,.0f}".format)
-    vitrines["taxa_execucao_pct"] = vitrines["taxa_execucao_pct"].map("{:.1f}%".format)
+    vitrines = vitrines.head(TOP_N).copy()
+    vitrines["valorEmpenhado"] = vitrines["valorEmpenhado"].map(fmt_moeda)
+    vitrines["valorPago"] = vitrines["valorPago"].map(fmt_moeda)
+    vitrines["taxa_execucao_pct"] = vitrines["taxa_execucao_pct"].map(fmt_pct)
     vitrines.columns = ["Código", "Autor", "Função", "Localidade",
                         "Empenhado", "Pago", "Execução"]
     vitrines.reset_index(drop=True, inplace=True)
+    vitrines.index += 1
     display(vitrines)
 else:
     print("✅ Nenhuma emenda vitrine identificada.")
@@ -257,4 +284,4 @@ mecanismo de emendas como instrumento de política pública.
 ---
 
 *Relatório gerado com [Quarto](https://quarto.org) · Dados: Portal da Transparência do Governo Federal*  
-*Pipeline reprodutível disponível em: github.com/seu-usuario/emendas-parlamentares*
+*Pipeline reprodutível disponível em: <https://github.com/josenildosilva/emendas-parlamentares-completo>*
