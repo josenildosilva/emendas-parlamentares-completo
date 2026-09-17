@@ -289,7 +289,8 @@ funções orçamentárias. Isso é esperado (Saúde e Educação são prioridade
 mas merece acompanhamento para garantir que outras áreas não sejam sistematicamente 
 subatendidas.
 
-**2. Concentração geográfica:** Algumas UFs concentram desproporcionalmente mais emendas 
+**2. Concentração geográfica:** Entre as emendas com UF atribuível — `{python} fmt_pct(cob_pct)` 
+do valor empenhado —, algumas UFs concentram desproporcionalmente mais emendas 
 do que outras. Uma análise complementar com indicadores socioeconômicos (IDH, PIB per capita) 
 permitiria avaliar se essa distribuição reflete demanda ou articulação política.
 
