@@ -175,6 +175,7 @@ def carregar_raw_com_duckdb(raw_dir: Path) -> pd.DataFrame:
     lista_arquivos = ", ".join(f"'{a.as_posix()}'" for a in arquivos_json)
 
     con = duckdb.connect()
+    # SQL por f-string: ver a nota sobre S608 / SQL injection em src/feat.py
     query = f"""
         SELECT
             codigoEmenda,

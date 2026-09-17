@@ -44,6 +44,32 @@ def carregar_mart(con: duckdb.DuckDBPyConnection) -> None:
         if not path.exists():
             logger.error(f"'{path}' não encontrado. Execute: uv run pipeline.py mart")
             raise SystemExit(1)
+
+        # ATENÇÃO — SQL montado com f-string (leia antes de copiar este padrão)
+        #
+        # O ruff sinaliza esta linha como S608, "possível vetor de SQL
+        # injection", e está certo em sinalizar. Aqui o alerta não se
+        # concretiza, por duas razões concretas:
+        #
+        #   1. `tabela` vem da lista fixa logo acima, escrita no código;
+        #   2. `path` vem de MART_DIR, que é configuração de quem executa
+        #      o pipeline, não entrada de terceiros.
+        #
+        # Nenhum valor vindo da API, de formulário ou de requisição HTTP
+        # chega até aqui. Em um pipeline local, interpolar assim é aceitável
+        # — e muitas vezes inevitável, porque nome de tabela e caminho de
+        # arquivo NÃO podem ser parametrizados: `?` liga valores, nunca
+        # identificadores.
+        #
+        # O perigo é levar o hábito para onde o dado é de terceiros. Num app
+        # web, `SELECT * FROM t WHERE uf = '{uf}'` com `uf` vindo da URL
+        # entrega o banco ao visitante. Lá o certo é parametrizar:
+        #
+        #     con.execute("SELECT * FROM t WHERE uf = ?", [uf])
+        #
+        # Regra prática: valor sempre vai por parâmetro; identificador, se
+        # precisar ser dinâmico, só depois de validado contra uma lista
+        # conhecida — como a `tabelas` acima.
         con.execute(f"CREATE VIEW {tabela} AS SELECT * FROM read_parquet('{path}')")
         logger.debug(f"  view registrada: {tabela}")
 

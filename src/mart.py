@@ -336,6 +336,7 @@ def main() -> None:
     logger.info(f"Entrada: {trusted_path} ({n} registros)")
 
     con = duckdb.connect()
+    # SQL por f-string: ver a nota sobre S608 / SQL injection em src/feat.py
     con.execute(f"CREATE VIEW trusted AS SELECT * FROM read_parquet('{trusted_path}')")
 
     logger.info("── Dimensões ──")

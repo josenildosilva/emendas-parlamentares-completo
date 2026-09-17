@@ -125,6 +125,7 @@ COLUNAS_MONETARIAS = [
     "valorRestoPago",
 ]
 
+# SQL por f-string: ver a nota sobre S608 / SQL injection em src/feat.py
 QUERY_RAW = f"""
     SELECT
         CAST(codigoEmenda        AS VARCHAR)  AS codigoEmenda,
