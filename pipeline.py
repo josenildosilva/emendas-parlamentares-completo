@@ -24,7 +24,12 @@ STEPS = {
 PIPELINE = ["ingest", "trusted", "mart", "feat"]
 
 
-def run(steps: list[str], extra_args: list[str] = []) -> None:
+def run(steps: list[str], extra_args: list[str] | None = None) -> None:
+    # Default mutavel ([]) e compartilhado entre todas as chamadas da funcao:
+    # se algum dia este codigo fizer extra_args.append(...), o valor vaza para
+    # a chamada seguinte. Por isso o default e None.
+    extra_args = extra_args or []
+
     for nome in steps:
         cmd = STEPS[nome] + extra_args
         print(f"\n{'═' * 50}")

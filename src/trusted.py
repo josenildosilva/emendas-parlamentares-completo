@@ -221,7 +221,9 @@ def validar_schema(df: pd.DataFrame) -> pd.DataFrame:
         logger.error("❌ FALHA NA VALIDAÇÃO DO DATA CONTRACT")
         logger.error(f"   Detalhe: {e.args[0]}")
         logger.error("   Corrija o arquivo raw ou atualize o schema antes de continuar.")
-        raise SystemExit(1)
+        # 'from e' preserva o erro original do Pandera no traceback, que e
+        # justamente o que diz QUAL coluna e QUANTOS valores falharam.
+        raise SystemExit(1) from e
 
 
 # ── Step 3: Limpeza com Pandas (Fine Tuning) ──────────────────────────────────

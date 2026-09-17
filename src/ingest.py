@@ -105,8 +105,19 @@ def _buscar_emendas_api(ano: int) -> list[dict]:
             dados_pagina = response.json()
 
         except requests.HTTPError as e:
+            # Antes isto era um 'break': a função devolvia as páginas já
+            # coletadas, o chamador gravava esse recorte como se fosse o ano
+            # inteiro e ainda salvava o checkpoint. O resultado era um dataset
+            # silenciosamente truncado, indistinguível de um completo.
+            #
+            # Uma coleta parcial nunca pode virar checkpoint: melhor falhar
+            # alto e não gravar nada do que analisar dados incompletos.
             logger.error(f"Erro HTTP na página {pagina}: {e}")
-            break
+            raise RuntimeError(
+                f"Coleta do ano {ano} interrompida na página {pagina} "
+                f"({len(emendas)} registros obtidos até aqui). "
+                f"Nada foi gravado — reexecute quando a API responder."
+            ) from e
         except requests.RequestException as e:
             logger.error(f"Erro de rede: {e}")
             raise

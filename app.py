@@ -440,9 +440,9 @@ def main():
     st.caption(
         "Fonte: Portal da Transparência do Governo Federal · "
         "Dados: emendas parlamentares ao Orçamento da União · "
-        "Pipeline reprodutível: github.com/seu-usuario/emendas-parlamentares"
+        "Pipeline reprodutível: github.com/josenildosilva/emendas-parlamentares-completo"
     )
 
 
-if __name__ == "__main__" or True:
+if __name__ == "__main__":
     main()
